@@ -1,0 +1,41 @@
+#!/usr/bin/perl -w
+sub get_ip()
+{
+	my $cmd = "ifconfig | tee ifconfig.data";		#.data文件用来暂时存放命令返回值
+	system($cmd);
+	open(FILE,"ifconfig.data")||die "Can't open the file : $!";
+	my @result = <FILE>;
+	my @keys;
+	my @values;
+	my %hash;
+	foreach $item (@result){ #每行是一个item
+	 	if($item =~ m/^[a-z]/g){						#判断该行是否为空格开始
+			$char1 = " ";
+			$pos = index($item,$char1);
+			push @keys,substr($item,0,$pos+1) ;
+			#print substr($item,0,$pos+1) ; 
+	 	}
+
+	 	if($item =~ m/inet addr:/g){ #模式匹配查找ip 
+			 $lenght1 = length($item);
+			 $pos1 = pos($item); #存ip地址的起始位置
+
+			 $item1 = substr($item,$pos1,$lenght1-$pos1); #截取ip之后的字符串
+			 $char = " ";
+			 $pos2 = index($item1,$char);
+
+			 push @values,substr($item1,0,$pos2+1);		#取出ip
+			 #print substr($item1,0,$pos2+1);
+		}
+	}
+
+	for($i=0; $i< @keys;$i++){
+		$hash{$keys[$i]} = $values[$i];	
+	}
+	return %hash;
+}
+%result1 =get_ip();
+print %result1;
+
+
+
